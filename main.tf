@@ -3,19 +3,20 @@ provider "aws" {
 }
 
 resource "aws_vpc" "main_vpc" {
-  cidr_block = "10.10.0.0/20"
-  enable_dns_support = true
+  cidr_block           = "10.10.0.0/20"
+  enable_dns_support   = true
   enable_dns_hostnames = true
+
   tags = {
     Name = "MainVPC"
   }
 }
 
 resource "aws_subnet" "public_subnet" {
-  vpc_id            = aws_vpc.main_vpc.id
-  cidr_block        = "10.10.0.0/24"
+  vpc_id                  = aws_vpc.main_vpc.id
+  cidr_block              = "10.10.0.0/24"
   map_public_ip_on_launch = true
-  availability_zone = "us-east-1a"
+  availability_zone       = "us-east-1a"
 
   tags = {
     Name = "PublicSubnet"
@@ -58,7 +59,7 @@ resource "aws_security_group" "jump_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Puedes restringir a tu IP
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -105,25 +106,27 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
+# Instancia Jump Server
 resource "aws_instance" "jump_server" {
-  ami           = "ami-084568db4383264d4" 
-  instance_type = "t2.micro"
-  subnet_id     = aws_subnet.public_subnet.id
-  security_groups = [aws_security_group.jump_sg.name]
-  key_name      = "vockey"
+  ami                         = "ami-084568db4383264d4"
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.public_subnet.id
+  vpc_security_group_ids      = [aws_security_group.jump_sg.id]
+  key_name                    = "vockey"
 
   tags = {
     Name = "JumpServer"
   }
 }
 
+# Web Servers
 resource "aws_instance" "web_servers" {
-  count         = 3
-  ami           = "ami-084568db4383264d4"
-  instance_type = "t2.micro"
-  subnet_id     = aws_subnet.public_subnet.id
-  security_groups = [aws_security_group.web_sg.name]
-  key_name      = "vockey"
+  count                       = 3
+  ami                         = "ami-084568db4383264d4"
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.public_subnet.id
+  vpc_security_group_ids      = [aws_security_group.web_sg.id]
+  key_name                    = "vockey"
 
   tags = {
     Name = "WebServer-${count.index + 1}"
