@@ -58,7 +58,7 @@ def crear_pagina():
 
     <body>
 
-        <h1>¡Hola desde el script Python de DevOps!</h1>
+        <h1>¡Hola desde el script 2 Python de DevOps!</h1>
 
     </body>
 
